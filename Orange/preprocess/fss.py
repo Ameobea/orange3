@@ -90,7 +90,7 @@ class SelectBestFeatures:
         return data.from_table(domain, data)
 
     def __repr__(self):
-        return ("Orange.preprocess.fss.SelectBestFeatures(" +
+        return ("SelectBestFeatures(" +
                "method={}, k={}, threshold={}, decreasing={})".format(
             self.method.__module__ + "." + self.method.__name__,
             str(self.k),
@@ -138,7 +138,7 @@ class SelectRandomFeatures:
         return data.from_table(domain, data)
 
     def __repr__(self):
-        return "Orange.preprocess.fss.SelectRandomFeatures(k={})".format(
+        return "SelectRandomFeatures(k={})".format(
             str(self.k)
         )
 
@@ -172,6 +172,6 @@ class RemoveNaNColumns(Preprocess):
         return Orange.data.Table(domain, data)
 
     def __repr__(self):
-        return "Orange.preprocess.fss.RemoveNaNColumns(threshold={})".format(
+        return "RemoveNaNColumns(threshold={})".format(
             str(self.threshold)
         )
