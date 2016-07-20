@@ -1842,6 +1842,7 @@ class OWPreprocess(widget.OWWidget):
         d["preprocessors"] = preprocessors
         return d
 
+
     def set_model(self, ppmodel):
         if self.preprocessormodel:
             self.preprocessormodel.dataChanged.disconnect(self.__on_modelchanged)
