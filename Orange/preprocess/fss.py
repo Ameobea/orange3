@@ -89,12 +89,11 @@ class SelectBestFeatures:
         return data.from_table(domain, data)
 
     def __repr__(self):
-        return "SelectBestFeatures({}{}{}{})".format(
-            "method={}, ".format(self.method.__name__),
-            "k={}, ".format(str(self.k)) if self.k is not None else "",
-            "threshold={}, ".format(str(self.threshold)) if self.threshold \
-                is not None else "",
-            "decreasing=False" if not self.decreasing else ""
+        args = self.__class__.__init__.__code__.co_varnames
+        return "{}({})".format(
+            self.__class__.__name__,
+            ", ".join("{}={}".format(arg, repr(getattr(self, arg))) for i, arg in enumerate(args) if
+                arg != "self" and self.__class__.__init__.__defaults__[i-1] != getattr(self, arg))
         )
 
 
@@ -136,10 +135,7 @@ class SelectRandomFeatures:
             data.domain.class_vars, data.domain.metas)
         return data.from_table(domain, data)
 
-    def __repr__(self):
-        return "SelectRandomFeatures({})".format(
-            "k={}".format(str(self.k)) if self.k != 0.1 else ""
-        )
+    __repr__ = SelectBestFeatures.__repr__
 
 
 class RemoveNaNColumns(Preprocess):
@@ -170,8 +166,4 @@ class RemoveNaNColumns(Preprocess):
                                     data.domain.metas)
         return Orange.data.Table(domain, data)
 
-    def __repr__(self):
-        return "RemoveNaNColumns({})".format(
-            "threshold={}".format(str(self.threshold)) if self.threshold
-                is not None else ""
-        )
+    __repr__ = SelectBestFeatures.__repr__
