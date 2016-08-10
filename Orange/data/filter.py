@@ -24,6 +24,15 @@ class Filter:
     def __call__(self, data):
         return
 
+    def __repr__(self):
+        return "SelectBestFeatures({}{}{}{})".format(
+            "method={}, ".format(self.method.__name__),
+            "k={}, ".format(str(self.k)) if self.k is not None else "",
+            "threshold={}, ".format(str(self.threshold)) if self.threshold \
+                is not None else "",
+            "decreasing=False" if not self.decreasing else ""
+        )
+
 
 class IsDefined(Filter):
     """
@@ -224,13 +233,6 @@ class Values(Filter):
             sel = np.logical_not(sel)
         return data[sel]
 
-    def __repr__(self):
-        return "Values({}{}{})".format(
-            repr(self.conditions),
-            ", conjunction=False" if not self.conjunction else "",
-            ", negate=True" if self.negate else ""
-        )
-
 
 class ValueFilter(Filter):
     """
@@ -383,14 +385,6 @@ class FilterContinuous(ValueFilter):
         if self.oper == self.IsDefined:
             return "{} is defined".format(column)
         return "invalid operator"
-
-    def __repr__(self):
-        return "FilterContinuous({}, {}{}{})".format(
-            repr(self.column),
-            repr(self.oper),
-            ", ref=" + repr(self.ref) if self.ref is not None else "",
-            ", max=" + repr(self.max) if self.max is not None else ""
-        )
 
 
     # For PyCharm:
