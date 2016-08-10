@@ -316,11 +316,11 @@ class sample_fold_indices():
         return tuple(ind)
 
     def __repr__(self):
-        return "sample_fold_indices({}{}{})".format(
-            ", folds={}".format(self.folds) if self.folds != 10 else "",
-            ", stratified=True" if self.stratified else "",
-            ", random_state={}".format(repr(self.random_state)) if
-                self.random_state is not None else ""
+        args = self.__class__.__init__.__code__.co_varnames
+        return "{}({})".format(
+            self.__class__.__name__,
+            ", ".join("{}={}".format(arg, repr(getattr(self, arg))) for i, arg in enumerate(args) if
+                arg != "self" and self.__class__.__init__.__defaults__[i-1] != getattr(self, arg))
         )
 
 
@@ -356,14 +356,7 @@ class sample_random_n():
 
         return next(iter(ind))
 
-    def __repr__(self):
-        return "sample_random_n({}{}{}{})".format(
-            n,
-            ", stratified=True" if self.stratified else "",
-            ", replace=True" if not self.replace else "",
-            ", random_state={}".format(repr(self.random_state)) if
-                self.random_state is not None else ""
-        )
+    __repr__ =  sample_fold_indices.__repr__
 
 
 class sample_random_p():
@@ -377,13 +370,7 @@ class sample_random_p():
         return sample_random_n(self.table, self.n,
             self.stratified, False, self.random_state)
 
-    def __repr__(self):
-        return "sample_random_p({}{}{})".format(
-            p,
-            ", stratified=True" if self.stratified else "",
-            ", random_state={}".format(repr(self.random_state)) if
-                self.random_state is not None else ""
-        )
+    __repr__ = sample_fold_indices.__repr__
 
 
 def sample_bootstrap():
@@ -400,12 +387,7 @@ def sample_bootstrap():
         remaining = np.flatnonzero(insample)
         return remaining, sample
 
-    def __repr__(self):
-        return "sample_bootstrap({}{})".format(
-            self.size,
-            ", random_state={}".format(repr(self.random_state)) if
-                self.random_state is not None else ""
-        )
+    __repr__ = sample_fold_indices.__repr__
 
 
 def test_main():
