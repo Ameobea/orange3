@@ -98,6 +98,14 @@ class Discretization:
             "Subclasses of 'Discretization' need to implement "
             "the call operator")
 
+    def __repr__(self):
+        args = self.__class__.__init__.__code__.co_varnames
+        return "{}({})".format(
+            self.__class__.__name__,
+            ", ".join("{}={}".format(arg, repr(getattr(self, arg))) for i, arg in enumerate(args) if
+                arg != "self" and self.__class__.__init__.__defaults__[i-1] != getattr(self, arg))
+        )
+
 
 class EqualFreq(Discretization):
     """Discretization into bins with approximately equal number of data
@@ -127,9 +135,6 @@ class EqualFreq(Discretization):
         return Discretizer.create_discretized_var(
             data.domain[attribute], points)
 
-    def __repr__(self):
-        return "EqualFreq(n={})".format(str(self.n))
-
 class EqualWidth(Discretization):
     """Discretization into a fixed number of bins with equal widths.
 
@@ -156,9 +161,6 @@ class EqualWidth(Discretization):
                 points = self._split_eq_width(min, max)
         return Discretizer.create_discretized_var(
             data.domain[attribute], points)
-
-    def __repr__(self):
-        return "EqualWidth(n={})".format(str(self.n))
 
     def _split_eq_width(self, min, max):
         if np.isnan(min) or np.isnan(max) or min == max:
@@ -198,9 +200,6 @@ class EntropyMDL(Discretization):
             points = []
         return Discretizer.create_discretized_var(
             data.domain[attribute], points)
-
-    def __repr__(self):
-        return "EntropyMDL(force={})".format(str(self.force))
 
     @classmethod
     def _normalize(cls, X, axis=None, out=None):

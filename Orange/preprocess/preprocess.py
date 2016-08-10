@@ -43,6 +43,14 @@ class Preprocess:
     def __call__(self, data):
         raise NotImplementedError("Subclasses need to implement __call__")
 
+    def __repr__(self):
+        args = self.__class__.__init__.__code__.co_varnames
+        return "{}({})".format(
+            self.__class__.__name__,
+            ", ".join("{}={}".format(arg, repr(getattr(self, arg))) for i, arg in enumerate(args) if
+                arg != "self" and self.__class__.__init__.__defaults__[i-1] != getattr(self, arg))
+        )
+
 
 class Continuize(Preprocess):
     MultinomialTreatment = Enum(
@@ -66,13 +74,6 @@ class Continuize(Preprocess):
             multinomial_treatment=self.multinomial_treatment)
         domain = continuizer(data)
         return data.from_table(domain, data)
-
-    def __repr__(self):
-        return "Continuize({}{})".format(
-            "zero_based=False, " if not self.zero_based else "",
-            "multinomial_treatment={}".format(repr(repr(self.multinomial_treatment))) if \
-                self.multinomial_treatment != self.Indicators else ""
-        )
 
 
 class Discretize(Preprocess):
@@ -131,13 +132,6 @@ class Discretize(Preprocess):
             discretized(data.domain.metas, self.discretize_metas))
         return data.from_table(domain, data)
 
-    def __repr__(self):
-        return "Discretize({}{})".format(
-            "method={}, ".format(repr(self.method)) if \
-                self.method is not None else "",
-            "remove_const=False" if not self.remove_const else ""
-        )
-
 
 class Impute(Preprocess):
     """
@@ -169,12 +163,6 @@ class Impute(Preprocess):
             newattrs, data.domain.class_vars, data.domain.metas)
         return data.from_table(domain, data)
 
-    def __repr__(self):
-        return "Impute({})".format(
-            "method={}".format(repr(self.method)) if self.method \
-                != Orange.preprocess.impute.Average() else ""
-        )
-
 
 class SklImpute(Preprocess):
     __wraps__ = skl_preprocessing.Imputer
@@ -203,12 +191,6 @@ class SklImpute(Preprocess):
         new_data.attributes = getattr(data, 'attributes', {})
         return new_data
 
-    def __repr__(self):
-        return "SklImpute({})".format(
-            "strategy={}".format(repr(self.strategy)) if self.strategy
-                 != "mean" else ""
-        )
-
 
 class RemoveConstant(Preprocess):
     """
@@ -232,9 +214,6 @@ class RemoveConstant(Preprocess):
         domain = Orange.data.Domain(atts, data.domain.class_vars,
                                     data.domain.metas)
         return Orange.data.Table(domain, data)
-
-    def __repr__(self):
-        return "RemoveConstant()"
 
 
 class RemoveNaNClasses(Preprocess):
@@ -261,9 +240,6 @@ class RemoveNaNClasses(Preprocess):
         else:
             nan_cls = np.isnan(data.Y)
         return Table(data.domain, data, np.where(nan_cls == False))
-
-    def __repr__(self):
-        return "RemoveNaNClasses()"
 
 
 class Normalize(Preprocess):
@@ -335,15 +311,6 @@ class Normalize(Preprocess):
             transform_class=self.transform_class)
         return normalizer(data)
 
-    def __repr__(self):
-        return "Normalize({}{}{})".format(
-            "zero_based=False, " if not self.zero_based else "",
-            "norm_type={}, ".format(repr(self.norm_type)) if \
-                self.norm_type != self.NormalizeBySD else "",
-            "transform_class=True".format(str(self.transform_class)) if \
-                self.transform_class else ""
-        )
-
 
 class Randomize(Preprocess):
     """
@@ -406,12 +373,6 @@ class Randomize(Preprocess):
 
         return new_data
 
-    def __repr__(self):
-        return "Randomize({})".format(
-            "rand_type=Randomize.{}".format(repr(self.rand_type)) if \
-                self.rand_type != self.RandomizeClasses else ""
-        )
-
     def randomize(self, table):
         if len(table.shape) > 1:
             for i in range(table.shape[1]):
@@ -429,12 +390,6 @@ class ProjectPCA(Preprocess):
         pca = Orange.projection.PCA(n_components=self.n_components)(data)
         return pca(data)
 
-    def __repr__(self):
-        return "ProjectPCA({})".format(
-            "n_components={}".format(str(self.n_components)) if \
-                self.n_components is not None else ""
-        )
-
 
 class ProjectCUR(Preprocess):
 
@@ -449,11 +404,6 @@ class ProjectCUR(Preprocess):
             compute_U=False,
         )(data)
         return cur(data)
-
-    def __repr__(self):
-        return "ProjectCUR(rank={}, max_error={})".format(
-            str(self.rank),str(self.max_error)
-        )
 
 class Scaling(Preprocess):
     """
@@ -522,16 +472,6 @@ class Scaling(Preprocess):
                                     data.domain.metas)
         return data.from_table(domain, data)
 
-    def __repr__(self):
-        return "Scaling({}{})".format(
-            "center={}, ".format("Scaling.median" if \
-                    self.center is not None else "None") if \
-                self.center != self.mean else "",
-            "scale={}".format("Scaling.span" if \
-                    self.scale is not None else "None") if \
-                self.scale != self.std else ""
-        )
-
 
 class PreprocessorList:
     """
@@ -560,8 +500,8 @@ class PreprocessorList:
         return data
 
     def __repr__(self):
-        repstr = "PreprocessorList([\n"
+        repstr = "PreprocessorList(["
         for preproc in self.preprocessors:
-            repstr += "    " + repr(preproc) + ",\n"
+            repstr +=  repr(preproc) + ", "
         repstr += "])"
         return repstr
