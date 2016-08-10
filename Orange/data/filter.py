@@ -25,12 +25,11 @@ class Filter:
         return
 
     def __repr__(self):
-        return "SelectBestFeatures({}{}{}{})".format(
-            "method={}, ".format(self.method.__name__),
-            "k={}, ".format(str(self.k)) if self.k is not None else "",
-            "threshold={}, ".format(str(self.threshold)) if self.threshold \
-                is not None else "",
-            "decreasing=False" if not self.decreasing else ""
+        args = self.__class__.__init__.__code__.co_varnames
+        return "{}({})".format(
+            self.__class__.__name__,
+            ", ".join("{}={}".format(arg, repr(getattr(self, arg))) for i, arg in enumerate(args) if
+                arg != "self" and self.__class__.__init__.__defaults__[i-1] != getattr(self, arg))
         )
 
 
